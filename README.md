@@ -4,6 +4,8 @@
 
 NOCturne is a single-file LogicMonitor dashboard widget that plays your active alerts as a live, generative synth track. Severity sets the register and timbre (criticals growl low and buzzy, warnings chime up high), every resource keeps its own note, and the song gets busier as the alert count climbs, so you can hear an incident building before you have read a single alert. Everything is synthesized in the browser with the Web Audio API: no samples, no media files, no external calls.
 
+NOCturne is an unofficial personal project, not an official LogicMonitor product, and is provided as-is under the MIT License. LogicMonitor is a trademark of LogicMonitor, Inc.
+
 ## What's in this repo
 
 | File | What it is |
