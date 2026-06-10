@@ -29,17 +29,9 @@
   Text Widget. Browser autoplay rules also mean a viewer must click Play once
   per session before any sound plays.
 
-  Optional dashboard tokens (defaults in SETTINGS):
-    AlertLimit - default 50, how many alerts a Load pulls (UI can override)
-    Tempo      - beats per minute, default 96
-
   Lineage: reborn from Song of Alerts (sample-based, kept as song-of-alerts.html).
   Sound prototyped in lab-nocturne.html. Descended from the Better Topo Widget.
 -->
-<p data-noc-tokens style="display:none;">
-  <span data-noc-token="AlertLimit" style="display:none;">##AlertLimit##</span>
-  <span data-noc-token="Tempo" style="display:none;">##Tempo##</span>
-</p>
 <div data-noc-widget class="noc-widget">
   <style>
     [data-noc-widget] {
@@ -514,30 +506,16 @@
       || document.querySelector("[data-noc-widget]:not([data-noc-init])");
     if (!root || root.hasAttribute("data-noc-init")) return;
     root.setAttribute("data-noc-init", "1");
-    const tokenRoot = (root.previousElementSibling && root.previousElementSibling.matches
-      && root.previousElementSibling.matches("[data-noc-tokens]"))
-      ? root.previousElementSibling
-      : (root.parentNode && root.parentNode.querySelector("[data-noc-tokens]")) || null;
     const q = (sel) => root.querySelector(sel);
 
     let csrfToken = "";
 
-    // ---- Tokens ---------------------------------------------------------
-    function tokenValue(name, fallback) {
-      const el = tokenRoot && tokenRoot.querySelector(`[data-noc-token="${name}"]`);
-      const raw = (el && el.textContent || "").trim();
-      if (!raw || /^##.*##$/.test(raw)) return fallback;
-      return raw;
-    }
     function positiveInt(value, fallback, min, max) {
       const parsed = Number.parseInt(value, 10);
       if (!Number.isInteger(parsed)) return fallback;
       return Math.max(min, Math.min(max, parsed));
     }
-    const SETTINGS = {
-      limit: positiveInt(tokenValue("AlertLimit", "50"), 50, 10, 1000),
-      tempo: positiveInt(tokenValue("Tempo", "96"), 96, 64, 140)
-    };
+    const SETTINGS = { limit: 50, tempo: 96 };
 
     // ---- Same-origin LogicMonitor auth ----------------------------------
     async function parseResponse(resp) {
@@ -1213,14 +1191,6 @@
     });
     q("[data-load]").addEventListener("click", load);
     const limitSel = q("[data-limit]");
-    // An AlertLimit token can be anything in 10-1000; give the select a matching
-    // option (kept in numeric order) so the UI shows what Load will actually pull.
-    if (!Array.prototype.some.call(limitSel.options, (o) => o.value === String(SETTINGS.limit))) {
-      const op = document.createElement("option");
-      op.value = op.textContent = String(SETTINGS.limit);
-      const next = Array.prototype.find.call(limitSel.options, (o) => Number(o.value) > SETTINGS.limit);
-      limitSel.insertBefore(op, next || null);
-    }
     limitSel.value = String(SETTINGS.limit);
     limitSel.addEventListener("change", (e) => { SETTINGS.limit = positiveInt(e.target.value, 50, 10, 1000); });
     q("[data-storm]").addEventListener("click", addStorm);
