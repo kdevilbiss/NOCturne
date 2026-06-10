@@ -134,7 +134,7 @@ It's a slot machine that cannot lose, so occasionally it jackpots. When it does,
 
 Every claim above is checkable in `lab-nocturne.html` in about five minutes:
 
-1. **Density (§8):** Generate 1 alert, listen. Clear, then Generate 250. Same machinery, completely different pressure.
+1. **Density (§8):** add a single alert with **+W** and listen. Clear, then Generate 250. Same machinery, completely different pressure.
 2. **The bed (§5):** Toggle Hush both ways during a busy set. Notice the alert notes feel *placed* when the bed returns.
 3. **Motif (§7):** Click the same chip several times. Same pitch, every time. Now click a different device.
 4. **The landmine, controlled (§3):** Switch Scale from Minor to Dark mid-song. One half-step of menace enters the menu, and the mood changes without anything breaking.
