@@ -4,8 +4,6 @@
 
 NOCturne is a single-file LogicMonitor dashboard widget that plays your active alerts as a live, generative synth track. Severity sets the register and timbre (criticals growl low and buzzy, warnings chime up high), every resource keeps its own note, and the song gets busier as the alert count climbs, so you can hear an incident building before you have read a single alert. Everything is synthesized in the browser with the Web Audio API: no samples, no media files, no external calls.
 
-<!-- TODO: demo video / gif here -->
-
 ## What's in this repo
 
 | File | What it is |
@@ -14,7 +12,6 @@ NOCturne is a single-file LogicMonitor dashboard widget that plays your active a
 | [`lab-nocturne.html`](lab-nocturne.html) | The Sound Lab: the same engine on mock data. Opens from `file://` in any browser, no LogicMonitor, no setup. The no-portal way to hear it, demo it, and tune it. |
 | [`docs/music-science.md`](docs/music-science.md) | Why the output sounds like music instead of a smoke detector: pentatonic scales, quantization, beat induction, and the generative-music payoff, explained for humans. |
 | [`docs/box-art.md`](docs/box-art.md) | The back of the retail box, for those who remember software coming in boxes. |
-| [`legacy/song-of-alerts.html`](legacy/song-of-alerts.html) | The sample-playback predecessor, kept as the original. NOCturne is its synthesis-first rebirth. |
 
 ## Quick start
 
@@ -75,6 +72,6 @@ Both optional, set on the widget or dashboard:
 
 ## Lineage
 
-Born in the LM Widget Lab as a rebirth of Song of Alerts (`legacy/`), with the sound prototyped in the lab bench. For the full story of why a stream of alerts comes out sounding like a song, read [the music science](docs/music-science.md).
+Born in the LM Widget Lab as a rebirth of Song of Alerts, the sample-playback original, which stays behind in the Lab as an artifact. The sound here was prototyped in the lab bench. For the full story of why a stream of alerts comes out sounding like a song, read [the music science](docs/music-science.md).
 
 The defaults are not arbitrary.

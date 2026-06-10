@@ -1301,7 +1301,7 @@
         '<div class="noc-row-desc" style="margin-top:6px;">These are the base-octave notes. Severity sets the octave: critical +' + C.sev.critical.octave + ' (lowest), error +' + C.sev.error.octave + ', warning +' + C.sev.warning.octave + ' (highest).</div>');
       const sevRows = ["warning", "error", "critical"].map(function (s) {
         const v = C.sev[s];
-        return "<tr><td>" + s + "</td><td>oct " + v.octave + "</td><td>" + v.type + "</td><td>" + v.gain + "</td><td>" + v.dur + "s</td></tr>";
+        return "<tr><td>" + s + "</td><td>oct " + v.octave + "</td><td>" + escHtml(v.type) + "</td><td>" + v.gain + "</td><td>" + v.dur + "s</td></tr>";
       }).join("");
       h += '<div class="noc-sec"><div class="noc-sec-title">Severity voices</div><table class="noc-tbl"><thead><tr><th>Severity</th><th>Register</th><th>Waveform</th><th>Loudness</th><th>Length</th></tr></thead><tbody>' + sevRows + '</tbody></table><div class="noc-row-desc" style="margin-top:9px;">Severity sets register, timbre, loudness and length at once. Worse alerts play lower and harsher.</div></div>';
       h += helpSection("Dynamics &amp; placement",
@@ -1429,12 +1429,57 @@
     }
     function syncCog() { cogSync.forEach((fn) => fn()); }
     function applyAllLive() { applyFx.reverb(NOC_CONFIG.fx.reverb); applyFx.echoWet(NOC_CONFIG.fx.echoWet); applyFx.echoFeedback(NOC_CONFIG.fx.echoFeedback); }
-    function mergeConfig(base, inc) {
-      const out = JSON.parse(JSON.stringify(base));
-      (function rec(o, i) { for (const k in i) { if (i[k] && typeof i[k] === "object" && !Array.isArray(i[k]) && o[k] && typeof o[k] === "object") rec(o[k], i[k]); else o[k] = i[k]; } })(out, inc);
-      return out;
+    // Pasted config is untrusted input running on the LogicMonitor origin, so
+    // it is rebuilt against the shape of DEFAULTS rather than deep-merged:
+    // only keys DEFAULTS has are kept (which also blocks __proto__ tricks),
+    // numbers are coerced, waveforms must come from the known list, and the
+    // values with teeth (gains, echo feedback) are clamped to UI ranges.
+    function sanitizeConfig(inc) {
+      const clean = (def, val) => {
+        if (typeof def === "number") { const n = Number(val); return Number.isFinite(n) ? n : def; }
+        if (typeof def === "boolean") return val === undefined ? def : !!val;
+        if (typeof def === "string") return typeof val === "string" ? val.slice(0, 40) : def;
+        if (Array.isArray(def)) {
+          if (!Array.isArray(val)) return def.slice();
+          const nums = val.slice(0, 32).map(Number).filter(Number.isFinite);
+          return nums.length ? nums : def.slice();
+        }
+        if (def && typeof def === "object") {
+          const out = {};
+          for (const k of Object.keys(def)) {
+            out[k] = clean(def[k], (val && typeof val === "object" && Object.prototype.hasOwnProperty.call(val, k)) ? val[k] : undefined);
+          }
+          return out;
+        }
+        return def;
+      };
+      const cfg = clean(DEFAULTS, inc && typeof inc === "object" ? inc : {});
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+      cfg.rootHz = clamp(cfg.rootHz, 20, 440);
+      cfg.ackedMultiplier = clamp(cfg.ackedMultiplier, 0, 1);
+      cfg.panSpread = clamp(cfg.panSpread, 0, 2);
+      cfg.density.scale = clamp(cfg.density.scale, 0.1, 4);
+      Object.keys(cfg.scales).forEach((k) => { cfg.scales[k] = cfg.scales[k].slice(0, 12).map((n) => clamp(Math.round(n), 0, 24)); });
+      cfg.bed.barRoots = cfg.bed.barRoots.slice(0, 16).map((n) => clamp(Math.round(n), 0, 24));
+      cfg.bed.bassGain = clamp(cfg.bed.bassGain, 0, 1);
+      cfg.bed.padGain = clamp(cfg.bed.padGain, 0, 1);
+      cfg.bed.padGainBusy = clamp(cfg.bed.padGainBusy, 0, 1);
+      cfg.bed.kickEvery = clamp(Math.round(cfg.bed.kickEvery), 1, 16);
+      cfg.bed.hatStep = clamp(Math.round(cfg.bed.hatStep), 0, 3);
+      cfg.fx.reverb = clamp(cfg.fx.reverb, 0, 100);
+      cfg.fx.echoWet = clamp(cfg.fx.echoWet, 0, 1);
+      cfg.fx.echoFeedback = clamp(cfg.fx.echoFeedback, 0, 0.9); // at 1+ the delay line feeds back forever
+      ["warning", "error", "critical"].forEach((s) => {
+        const v = cfg.sev[s];
+        if (WAVES.indexOf(v.type) < 0) v.type = DEFAULTS.sev[s].type;
+        v.octave = clamp(Math.round(v.octave), 0, 5);
+        v.gain = clamp(v.gain, 0, 0.6);
+        v.dur = clamp(v.dur, 0.05, 3);
+      });
+      ["clickDur", "clickGain", "stormDur", "stormGain", "stormPan"].forEach((k) => { cfg.oneShot[k] = clamp(cfg.oneShot[k], 0, 3); });
+      return cfg;
     }
-    function applyConfig(parsed) { NOC_CONFIG = mergeConfig(DEFAULTS, parsed); SCALE = NOC_CONFIG.scales[currentMood] || NOC_CONFIG.scales.minor; applyAllLive(); syncCog(); }
+    function applyConfig(parsed) { NOC_CONFIG = sanitizeConfig(parsed); SCALE = NOC_CONFIG.scales[currentMood] || NOC_CONFIG.scales.minor; applyAllLive(); syncCog(); }
     function setCfgStatus(t) { const s = q("[data-cfg-status]"); if (!s) return; s.textContent = t; setTimeout(() => { if (s.textContent === t) s.textContent = ""; }, 2500); }
     buildCog();
     q("[data-cog]").addEventListener("click", () => { syncCog(); q("[data-cog-modal]").hidden = false; });

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Hardened Paste config: pasted JSON is untrusted input on the LogicMonitor origin, so it is now rebuilt against the shape of the defaults instead of deep-merged. Only known keys survive (which also blocks `__proto__` prototype-pollution tricks), numbers are coerced and clamped to the same ranges as the Settings UI (echo feedback in particular can no longer be pushed into runaway territory), waveforms must come from the known list, and the Reference panel escapes the one config-derived string it renders. Previously, a maliciously shared config could inject markup into the Reference panel.
+- Added the MIT license.
+- README: removed the demo placeholder and a stale reference to the legacy widget, which stayed behind in the Lab.
+
 ## 1.0 - 2026-06-10
 
 Initial release, moved into its own repo from the LM Widget Lab.
