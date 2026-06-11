@@ -28,7 +28,7 @@ No build, no hosting, no install. To update, paste the file again.
 
 ## Hear it without a portal
 
-Download `lab-nocturne.html` and open it in a browser tab. It is the full synth engine and every control, running on a mock alert generator. Generate a set, press Play, push the Storm button. This is also the right file to open on a call when you want the demo without touching anyone's production dashboard (or don't have permissions to enable scripts.)
+Listen to `lab-nocturne.html` [on Github Pages](https://kdevilbiss.github.io/NOCturne/lab-nocturne.html) or download it and open it in a browser tab. It is the full synth engine and every control, running on a mock alert generator. Generate a set, press Play, push the Storm button. This is also the right file to open on a call when you want the demo without touching anyone's production dashboard (or don't have permissions to enable scripts.)
 
 ## The four views
 
